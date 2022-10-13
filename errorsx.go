@@ -5,9 +5,9 @@ import (
 	"errors"
 )
 
-// IsOneOf is a multi-target version of [errors.Is]. See its documentation for
+// IsAny is a multi-target version of [errors.Is]. See its documentation for
 // details.
-func IsOneOf(err error, targets ...error) bool {
+func IsAny(err error, targets ...error) bool {
 	for _, t := range targets {
 		if errors.Is(err, t) {
 			return true
@@ -16,9 +16,9 @@ func IsOneOf(err error, targets ...error) bool {
 	return false
 }
 
-// AsOneOf is a multi-target version of [errors.As]. See its documentation for
+// AsAny is a multi-target version of [errors.As]. See its documentation for
 // details.
-func AsOneOf(err error, targets ...any) bool {
+func AsAny(err error, targets ...any) bool {
 	for _, t := range targets {
 		if errors.As(err, t) {
 			return true

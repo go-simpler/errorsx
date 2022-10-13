@@ -8,14 +8,14 @@ import (
 
 var err error
 
-func ExampleIsOneOf() {
-	if errorsx.IsOneOf(err, os.ErrNotExist, os.ErrPermission) {
+func ExampleIsAny() {
+	if errorsx.IsAny(err, os.ErrNotExist, os.ErrPermission) {
 		// handle error
 	}
 }
 
-func ExampleAsOneOf() {
-	if errorsx.AsOneOf(err, new(*os.PathError), new(*os.LinkError)) {
+func ExampleAsAny() {
+	if errorsx.AsAny(err, new(*os.PathError), new(*os.LinkError)) {
 		// handle error
 	}
 }

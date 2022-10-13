@@ -15,7 +15,7 @@ go get github.com/junk1tm/errorsx
 
 ## 🧩 Extensions
 
-### IsOneOf
+### IsAny
 
 A multi-target version of `errors.Is`.
 
@@ -30,12 +30,12 @@ if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) {
 Use this:
 
 ```go
-if errorsx.IsOneOf(err, os.ErrNotExist, os.ErrPermission) {
+if errorsx.IsAny(err, os.ErrNotExist, os.ErrPermission) {
 	// handle error
 }
 ```
 
-### AsOneOf
+### AsAny
 
 A multi-target version of `errors.As`.
 
@@ -50,7 +50,7 @@ if errors.As(err, new(*os.PathError)) || errors.As(err, new(*os.LinkError)) {
 Use this:
 
 ```go
-if errorsx.AsOneOf(err, new(*os.PathError), new(*os.LinkError)) {
+if errorsx.AsAny(err, new(*os.PathError), new(*os.LinkError)) {
 	// handle error
 }
 ```

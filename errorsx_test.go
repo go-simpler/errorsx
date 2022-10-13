@@ -29,12 +29,12 @@ var (
 
 func wrap(err error) error { return fmt.Errorf("wrapped: %w", err) }
 
-func TestIsOneOf(t *testing.T) {
+func TestIsAny(t *testing.T) {
 	test := func(name string, err error, targets []error, want bool) {
 		t.Helper()
 		t.Run(name, func(t *testing.T) {
 			t.Helper()
-			if got := errorsx.IsOneOf(err, targets...); got != want {
+			if got := errorsx.IsAny(err, targets...); got != want {
 				t.Errorf("got %v; want %v", got, want)
 			}
 		})
@@ -47,12 +47,12 @@ func TestIsOneOf(t *testing.T) {
 	test("multiple targets match (wrapped)", wrap(errFoo), []error{errFoo, errBar}, true)
 }
 
-func TestAsOneOf(t *testing.T) {
+func TestAsAny(t *testing.T) {
 	test := func(name string, err error, targets []any, want bool) {
 		t.Helper()
 		t.Run(name, func(t *testing.T) {
 			t.Helper()
-			if got := errorsx.AsOneOf(err, targets...); got != want {
+			if got := errorsx.AsAny(err, targets...); got != want {
 				t.Errorf("got %v; want %v", got, want)
 			}
 		})
