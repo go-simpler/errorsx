@@ -7,8 +7,8 @@ import (
 
 // IsAny is a multi-target version of [errors.Is]. See its documentation for
 // details.
-func IsAny(err error, targets ...error) bool {
-	for _, t := range targets {
+func IsAny(err, target error, targets ...error) bool {
+	for _, t := range append([]error{target}, targets...) {
 		if errors.Is(err, t) {
 			return true
 		}
@@ -18,8 +18,8 @@ func IsAny(err error, targets ...error) bool {
 
 // AsAny is a multi-target version of [errors.As]. See its documentation for
 // details.
-func AsAny(err error, targets ...any) bool {
-	for _, t := range targets {
+func AsAny(err error, target any, targets ...any) bool {
+	for _, t := range append([]any{target}, targets...) {
 		if errors.As(err, t) {
 			return true
 		}

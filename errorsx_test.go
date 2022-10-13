@@ -34,13 +34,12 @@ func TestIsAny(t *testing.T) {
 		t.Helper()
 		t.Run(name, func(t *testing.T) {
 			t.Helper()
-			if got := errorsx.IsAny(err, targets...); got != want {
+			if got := errorsx.IsAny(err, targets[0], targets[1:]...); got != want {
 				t.Errorf("got %v; want %v", got, want)
 			}
 		})
 	}
 
-	test("no targets", errFoo, []error{}, false)
 	test("no matches", errFoo, []error{errBar}, false)
 	test("single target match", errFoo, []error{errFoo}, true)
 	test("single target match (wrapped)", wrap(errFoo), []error{errFoo}, true)
@@ -52,13 +51,12 @@ func TestAsAny(t *testing.T) {
 		t.Helper()
 		t.Run(name, func(t *testing.T) {
 			t.Helper()
-			if got := errorsx.AsAny(err, targets...); got != want {
+			if got := errorsx.AsAny(err, targets[0], targets[1:]...); got != want {
 				t.Errorf("got %v; want %v", got, want)
 			}
 		})
 	}
 
-	test("no targets", errFoo, []any{}, false)
 	test("no matches", errFoo, []any{new(barError)}, false)
 	test("single target match", errFoo, []any{new(fooError)}, true)
 	test("single target match (wrapped)", wrap(errFoo), []any{new(fooError)}, true)
