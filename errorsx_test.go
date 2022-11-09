@@ -1,6 +1,7 @@
 package errorsx_test
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"testing"
@@ -78,4 +79,28 @@ func TestIsTimeout(t *testing.T) {
 	test("os.IsTimeout (wrapped)", os.IsTimeout, wrap(errTimeout), false)
 	test("errorsx.IsTimeout", errorsx.IsTimeout, errTimeout, true)
 	test("errorsx.IsTimeout (wrapped)", errorsx.IsTimeout, wrap(errTimeout), true)
+}
+
+type badFile struct{}
+
+func (*badFile) Close() error { return errors.New("won't close 😈") }
+
+func openFile() (*badFile, error) { return new(badFile), nil }
+
+func testFile() (err error) {
+	f, err := openFile()
+	if err != nil {
+		return fmt.Errorf("opening bad file: %w", err)
+	}
+	defer errorsx.Close(&err, f, "closing bad file")
+
+	// do something with f
+
+	return nil
+}
+
+func TestClose(t *testing.T) {
+	if err := testFile(); err.Error() != "closing bad file: won't close 😈" {
+		t.Error("unexpected error message")
+	}
 }
