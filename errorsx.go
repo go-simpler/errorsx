@@ -44,7 +44,7 @@ func IsTimeout(err error) bool {
 // formatAndArgs, it will be appended automatically.
 //
 // NOTE: Close is designed to be used ONLY as a defer statement.
-func Close(err *error, closer io.Closer, formatAndArgs ...any) {
+func Close(err *error, closer io.Closer, formatAndArgs ...any) { //nolint:gocritic // ptrToRefParam false-positive
 	if *err != nil {
 		// there is already an error, do not override it.
 		// TODO(junk1tm): replace with multierror when #1 is closed.
