@@ -1,6 +1,7 @@
 package errorsx_test
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"testing"
@@ -78,4 +79,31 @@ func TestIsTimeout(t *testing.T) {
 	test("os.IsTimeout (wrapped)", os.IsTimeout, wrap(errTimeout), false)
 	test("errorsx.IsTimeout", errorsx.IsTimeout, errTimeout, true)
 	test("errorsx.IsTimeout (wrapped)", errorsx.IsTimeout, wrap(errTimeout), true)
+}
+
+type errCloser struct{ err error }
+
+func (c *errCloser) Close() error { return c.err }
+
+func TestClose(t *testing.T) {
+	test := func(name string, mainErr, closeErr, wantErr error, formatAndArgs ...any) {
+		t.Helper()
+		t.Run(name, func(t *testing.T) {
+			t.Helper()
+			gotErr := func() (err error) {
+				c := errCloser{err: closeErr}
+				defer errorsx.Close(&err, &c, formatAndArgs...)
+				return mainErr
+			}()
+			if !errors.Is(gotErr, wantErr) {
+				t.Errorf("got %v; want %v", gotErr, wantErr)
+			}
+		})
+	}
+
+	test("main: ok; close: ok", nil, nil, nil)
+	test("main: ok; close: error", nil, errBar, errBar)
+	test("main: ok; close: error (wrapped)", nil, errBar, errBar, "wrapped: %w")
+	test("main: error; close: ok", errFoo, nil, errFoo)
+	test("main: error; close: error", errFoo, errBar, errFoo)
 }
