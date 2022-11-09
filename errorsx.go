@@ -7,6 +7,13 @@ import (
 	"io"
 )
 
+// Sentinel is a truly immutable error: unlike errors created via [errors.New],
+// it can be declared as a constant.
+type Sentinel string
+
+// Error implements the error interface.
+func (s Sentinel) Error() string { return string(s) }
+
 // IsAny is a multi-target version of [errors.Is]. See its documentation for
 // details.
 func IsAny(err, target error, targets ...error) bool {

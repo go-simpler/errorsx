@@ -15,6 +15,15 @@ go get github.com/junk1tm/errorsx
 
 ## 🧩 Extensions
 
+### Sentinel
+
+A truly immutable error: unlike errors created via `errors.New`, it can be
+declared as a constant.
+
+```go
+const EOF = errorsx.Sentinel("EOF")
+```
+
 ### IsAny
 
 A multi-target version of `errors.Is`.
