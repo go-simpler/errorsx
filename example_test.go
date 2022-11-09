@@ -25,3 +25,15 @@ func ExampleIsTimeout() {
 		// handle timeout
 	}
 }
+
+func ExampleClose() {
+	_ = func() (err error) {
+		f, err := os.Open("file.txt")
+		if err != nil {
+			return err
+		}
+		defer errorsx.Close(&err, f) // OR errorsx.Close(&err, f, "closing file: %w")
+
+		return nil
+	}()
+}
