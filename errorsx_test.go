@@ -9,6 +9,14 @@ import (
 	"github.com/junk1tm/errorsx"
 )
 
+func TestSentinel_Error(t *testing.T) {
+	const want = "EOF"
+
+	if got := errorsx.Sentinel("EOF").Error(); got != want {
+		t.Errorf("got %q; want %q", got, want)
+	}
+}
+
 type fooError struct{}
 
 func (fooError) Error() string { return "foo" }

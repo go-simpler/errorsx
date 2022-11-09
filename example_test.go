@@ -6,6 +6,11 @@ import (
 	"github.com/junk1tm/errorsx"
 )
 
+//nolint:unused // unused EOF is ok
+func ExampleSentinel() {
+	const EOF = errorsx.Sentinel("EOF")
+}
+
 var err error
 
 func ExampleIsAny() {
