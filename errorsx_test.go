@@ -81,26 +81,29 @@ func TestIsTimeout(t *testing.T) {
 	test("errorsx.IsTimeout (wrapped)", errorsx.IsTimeout, wrap(errTimeout), true)
 }
 
-type badFile struct{}
+type errCloser struct{ err error }
 
-func (*badFile) Close() error { return errors.New("won't close 😈") }
-
-func openFile() (*badFile, error) { return new(badFile), nil }
-
-func testFile() (err error) {
-	f, err := openFile()
-	if err != nil {
-		return fmt.Errorf("opening bad file: %w", err)
-	}
-	defer errorsx.Close(&err, f, "closing bad file")
-
-	// do something with f
-
-	return nil
-}
+func (c *errCloser) Close() error { return c.err }
 
 func TestClose(t *testing.T) {
-	if err := testFile(); err.Error() != "closing bad file: won't close 😈" {
-		t.Error("unexpected error message")
+	test := func(name string, mainErr, closeErr, wantErr error, formatAndArgs ...any) {
+		t.Helper()
+		t.Run(name, func(t *testing.T) {
+			t.Helper()
+			gotErr := func() (err error) {
+				c := errCloser{err: closeErr}
+				defer errorsx.Close(&err, &c, formatAndArgs...)
+				return mainErr
+			}()
+			if !errors.Is(gotErr, wantErr) {
+				t.Errorf("got %v; want %v", gotErr, wantErr)
+			}
+		})
 	}
+
+	test("main: ok; close: ok", nil, nil, nil)
+	test("main: ok; close: error", nil, errBar, errBar)
+	test("main: ok; close: error (wrapped)", nil, errBar, errBar, "wrapped: %w")
+	test("main: error; close: ok", errFoo, nil, errFoo)
+	test("main: error; close: error", errFoo, errBar, errFoo)
 }
