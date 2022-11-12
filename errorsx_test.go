@@ -9,7 +9,7 @@ import (
 	"github.com/junk1tm/errorsx"
 )
 
-func TestSentinel_Error(t *testing.T) {
+func TestSentinel(t *testing.T) {
 	const want = "EOF"
 
 	if got := errorsx.Sentinel("EOF").Error(); got != want {

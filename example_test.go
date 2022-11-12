@@ -1,17 +1,19 @@
 package errorsx_test
 
 import (
+	"errors"
+	"fmt"
 	"os"
 
 	"github.com/junk1tm/errorsx"
 )
 
+var err error
+
 //nolint:unused // unused EOF is ok
 func ExampleSentinel() {
 	const EOF = errorsx.Sentinel("EOF")
 }
-
-var err error
 
 func ExampleIsAny() {
 	if errorsx.IsAny(err, os.ErrNotExist, os.ErrPermission) {
@@ -41,4 +43,24 @@ func ExampleClose() {
 
 		return nil
 	}()
+}
+
+func ExampleAppend() {
+	var (
+		errFoo = errors.New("foo error")
+		errBar = errors.New("bar error")
+	)
+
+	print := func(err error) {
+		fmt.Printf("%[1]T: %[1]v\n", err)
+	}
+
+	print(errorsx.Append(nil))
+	print(errorsx.Append(nil, errFoo))
+	print(errorsx.Append(nil, errFoo, errBar))
+
+	// Output:
+	// <nil>: <nil>
+	// *errors.errorString: foo error
+	// *errorsx.multierror: [foo error | bar error]
 }
