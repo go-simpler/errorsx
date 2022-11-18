@@ -1,3 +1,3 @@
-module github.com/junk1tm/errorsx
+module github.com/go-simpler/errorsx
 
 go 1.19
