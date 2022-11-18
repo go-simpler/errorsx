@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/junk1tm/errorsx"
+	"github.com/go-simpler/errorsx"
 )
 
 func TestSentinel_Error(t *testing.T) {

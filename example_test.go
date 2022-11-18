@@ -3,7 +3,7 @@ package errorsx_test
 import (
 	"os"
 
-	"github.com/junk1tm/errorsx"
+	"github.com/go-simpler/errorsx"
 )
 
 //nolint:unused // unused EOF is ok
