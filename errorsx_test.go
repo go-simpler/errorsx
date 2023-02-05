@@ -94,7 +94,7 @@ type errCloser struct{ err error }
 func (c *errCloser) Close() error { return c.err }
 
 func TestClose(t *testing.T) {
-	test := func(name string, mainErr, closeErr, wantErr error, formatAndArgs ...any) {
+    test := func(name string, mainErr, closeErr error, wantErrs []error, formatAndArgs ...any) {
 		t.Helper()
 		t.Run(name, func(t *testing.T) {
 			t.Helper()
@@ -103,15 +103,17 @@ func TestClose(t *testing.T) {
 				defer errorsx.Close(&err, &c, formatAndArgs...)
 				return mainErr
 			}()
-			if !errors.Is(gotErr, wantErr) {
-				t.Errorf("got %v; want %v", gotErr, wantErr)
-			}
+            for _, wantErr := range wantErrs {
+                if !errors.Is(gotErr, wantErr) {
+                    t.Errorf("got %v; want %v", gotErr, wantErrs)
+                }
+            }
 		})
 	}
 
-	test("main: ok; close: ok", nil, nil, nil)
-	test("main: ok; close: error", nil, errBar, errBar)
-	test("main: ok; close: error (wrapped)", nil, errBar, errBar, "wrapped: %w")
-	test("main: error; close: ok", errFoo, nil, errFoo)
-	test("main: error; close: error", errFoo, errBar, errFoo)
+	test("main: ok; close: ok", nil, nil, []error{})
+    test("main: ok; close: error", nil, errBar, []error{errBar})
+    test("main: ok; close: error (wrapped)", nil, errBar, []error{errBar}, "wrapped: %w")
+    test("main: error; close: ok", errFoo, nil, []error{errFoo})
+    test("main: error; close: error", errFoo, errBar, []error{errFoo, errBar})
 }
