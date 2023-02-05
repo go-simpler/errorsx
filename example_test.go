@@ -6,12 +6,12 @@ import (
 	"github.com/go-simpler/errorsx"
 )
 
+var err error
+
 //nolint:unused // unused EOF is ok
 func ExampleSentinel() {
 	const EOF = errorsx.Sentinel("EOF")
 }
-
-var err error
 
 func ExampleIsAny() {
 	if errorsx.IsAny(err, os.ErrNotExist, os.ErrPermission) {

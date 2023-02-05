@@ -17,8 +17,7 @@ go get github.com/go-simpler/errorsx
 
 ### Sentinel
 
-A truly immutable error: unlike errors created via `errors.New`, it can be
-declared as a constant.
+A truly immutable error: unlike errors created via `errors.New`, it can be declared as a constant.
 
 ```go
 const EOF = errorsx.Sentinel("EOF")
@@ -27,16 +26,6 @@ const EOF = errorsx.Sentinel("EOF")
 ### IsAny
 
 A multi-target version of `errors.Is`.
-
-Instead of:
-
-```go
-if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) {
-	// handle error
-}
-```
-
-Use this:
 
 ```go
 if errorsx.IsAny(err, os.ErrNotExist, os.ErrPermission) {
@@ -48,16 +37,6 @@ if errorsx.IsAny(err, os.ErrNotExist, os.ErrPermission) {
 
 A multi-target version of `errors.As`.
 
-Instead of:
-
-```go
-if errors.As(err, new(*os.PathError)) || errors.As(err, new(*os.LinkError)) {
-	// handle error
-}
-```
-
-Use this:
-
 ```go
 if errorsx.AsAny(err, new(*os.PathError), new(*os.LinkError)) {
 	// handle error
@@ -66,18 +45,8 @@ if errorsx.AsAny(err, new(*os.PathError), new(*os.LinkError)) {
 
 ### IsTimeout
 
-Reports whether the error was caused by timeout. Unlike `os.IsTimeout`, it
-respects error wrapping.
-
-Won't catch a wrapped error:
-
-```go
-if os.IsTimeout(err) {
-	// handle timeout
-}
-```
-
-Will do just fine:
+Reports whether the error was caused by timeout.
+Unlike `os.IsTimeout`, it respects error wrapping.
 
 ```go
 if errorsx.IsTimeout(err) {

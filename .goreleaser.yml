@@ -1,5 +1,2 @@
 builds:
   - skip: true
-
-changelog:
-  sort: asc
