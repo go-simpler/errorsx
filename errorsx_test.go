@@ -94,13 +94,13 @@ type errCloser struct{ err error }
 func (c *errCloser) Close() error { return c.err }
 
 func TestClose(t *testing.T) {
-	test := func(name string, mainErr, closeErr error, wantErrs []error, formatAndArgs ...any) {
+	test := func(name string, mainErr, closeErr error, wantErrs []error) {
 		t.Helper()
 		t.Run(name, func(t *testing.T) {
 			t.Helper()
 			gotErr := func() (err error) {
 				c := errCloser{err: closeErr}
-				defer errorsx.Close(&err, &c, formatAndArgs...)
+				defer errorsx.Close(&c, &err)
 				return mainErr
 			}()
 			for _, wantErr := range wantErrs {
@@ -113,7 +113,6 @@ func TestClose(t *testing.T) {
 
 	test("main: ok; close: ok", nil, nil, []error{})
 	test("main: ok; close: error", nil, errBar, []error{errBar})
-	test("main: ok; close: error (wrapped)", nil, errBar, []error{errBar}, "wrapped: %w")
 	test("main: error; close: ok", errFoo, nil, []error{errFoo})
 	test("main: error; close: error", errFoo, errBar, []error{errFoo, errBar})
 }

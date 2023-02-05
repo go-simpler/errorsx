@@ -87,13 +87,12 @@ if errorsx.IsTimeout(err) {
 
 ### Close
 
-Attempts to close the given `io.Closer` and assigns the returned error (if any)
-to `err`. Designed to be used ONLY as a defer statement.
+Attempts to close the given `io.Closer` and assigns the returned error (if any) to `err`.
 
 ```go
 f, err := os.Open("file.txt")
 if err != nil {
 	return err
 }
-defer errorsx.Close(&err, f) // OR errorsx.Close(&err, f, "closing file: %w")
+defer errorsx.Close(f, &err)
 ```

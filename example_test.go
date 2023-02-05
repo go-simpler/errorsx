@@ -37,7 +37,7 @@ func ExampleClose() {
 		if err != nil {
 			return err
 		}
-		defer errorsx.Close(&err, f) // OR errorsx.Close(&err, f, "closing file: %w")
+		defer errorsx.Close(f, &err)
 
 		return nil
 	}()

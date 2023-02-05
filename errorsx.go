@@ -3,7 +3,6 @@ package errorsx
 
 import (
 	"errors"
-	"fmt"
 	"io"
 )
 
@@ -47,16 +46,10 @@ func IsTimeout(err error) bool {
 
 // Close attempts to close the given [io.Closer] and assigns the returned error (if any) to err.
 // If err is already not nil, it will be joined with the [io.Closer]'s error.
-// If formatAndArgs are provided, the error will be wrapped via [fmt.Errorf] before being assigned.
-// Do not include err in formatAndArgs, it will be appended automatically.
 //
 // NOTE: Close is designed to be used ONLY as a defer statement.
-func Close(err *error, closer io.Closer, formatAndArgs ...any) { //nolint:gocritic // ptrToRefParam false-positive
-	if cerr := closer.Close(); cerr != nil {
-		if len(formatAndArgs) > 0 {
-			format, args := formatAndArgs[0].(string), formatAndArgs[1:]
-			cerr = fmt.Errorf(format, append(args, cerr)...)
-		}
+func Close(c io.Closer, err *error) { //nolint:gocritic // ptrToRefParam: false-positive
+	if cerr := c.Close(); cerr != nil {
 		*err = errors.Join(*err, cerr)
 	}
 }
