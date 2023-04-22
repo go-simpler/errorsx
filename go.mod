@@ -1,3 +1,3 @@
-module github.com/go-simpler/errorsx
+module go-simpler.org/errorsx
 
 go 1.20
