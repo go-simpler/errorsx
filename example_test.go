@@ -3,7 +3,7 @@ package errorsx_test
 import (
 	"os"
 
-	"github.com/go-simpler/errorsx"
+	"go-simpler.org/errorsx"
 )
 
 var err error
