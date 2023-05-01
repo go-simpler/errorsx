@@ -1,8 +1,8 @@
 # errorsx
 
-[![ci](https://github.com/go-simpler/errorsx/actions/workflows/go.yml/badge.svg)](https://github.com/go-simpler/errorsx/actions/workflows/go.yml)
-[![docs](https://pkg.go.dev/badge/go-simpler.org/errorsx.svg)](https://pkg.go.dev/go-simpler.org/errorsx)
-[![report](https://goreportcard.com/badge/go-simpler.org/errorsx)](https://goreportcard.com/report/go-simpler.org/errorsx)
+[![checks](https://github.com/go-simpler/errorsx/actions/workflows/checks.yml/badge.svg)](https://github.com/go-simpler/errorsx/actions/workflows/checks.yml)
+[![pkg.go.dev](https://pkg.go.dev/badge/go-simpler.org/errorsx.svg)](https://pkg.go.dev/go-simpler.org/errorsx)
+[![goreportcard](https://goreportcard.com/badge/go-simpler.org/errorsx)](https://goreportcard.com/report/go-simpler.org/errorsx)
 [![codecov](https://codecov.io/gh/go-simpler/errorsx/branch/main/graph/badge.svg)](https://codecov.io/gh/go-simpler/errorsx)
 
 Extensions for the standard `errors` package
