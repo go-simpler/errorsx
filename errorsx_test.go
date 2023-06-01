@@ -17,34 +17,13 @@ func TestSentinel_Error(t *testing.T) {
 	}
 }
 
-type fooError struct{}
-
-func (fooError) Error() string { return "foo" }
-
-type barError struct{}
-
-func (barError) Error() string { return "bar" }
-
-type timeoutError struct{}
-
-func (timeoutError) Error() string { return "timeout" }
-func (timeoutError) Timeout() bool { return true }
-
-var (
-	errFoo     fooError
-	errBar     barError
-	errTimeout timeoutError
-)
-
-func wrap(err error) error { return fmt.Errorf("wrapped: %w", err) }
-
 func TestIsAny(t *testing.T) {
 	test := func(name string, err error, targets []error, want bool) {
 		t.Helper()
 		t.Run(name, func(t *testing.T) {
 			t.Helper()
 			if got := errorsx.IsAny(err, targets[0], targets[1:]...); got != want {
-				t.Errorf("got %v; want %v", got, want)
+				t.Errorf("got %t; want %t", got, want)
 			}
 		})
 	}
@@ -61,7 +40,7 @@ func TestAsAny(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Helper()
 			if got := errorsx.AsAny(err, targets[0], targets[1:]...); got != want {
-				t.Errorf("got %v; want %v", got, want)
+				t.Errorf("got %t; want %t", got, want)
 			}
 		})
 	}
@@ -72,13 +51,30 @@ func TestAsAny(t *testing.T) {
 	test("multiple targets match (wrapped)", wrap(errFoo), []any{new(fooError), new(barError)}, true)
 }
 
+func TestHasType(t *testing.T) {
+	test := func(name string, fn func(error) bool, err error, want bool) {
+		t.Helper()
+		t.Run(name, func(t *testing.T) {
+			t.Helper()
+			if got := fn(err); got != want {
+				t.Errorf("got %t; want %t", got, want)
+			}
+		})
+	}
+
+	test("no match", errorsx.HasType[barError], errFoo, false)
+	test("match (exact)", errorsx.HasType[fooError], errFoo, true)
+	test("match (wrapped)", errorsx.HasType[fooError], wrap(errFoo), true)
+	test("match (interface)", errorsx.HasType[interface{ Timeout() bool }], errTimeout, true)
+}
+
 func TestIsTimeout(t *testing.T) {
 	test := func(name string, fn func(error) bool, err error, want bool) {
 		t.Helper()
 		t.Run(name, func(t *testing.T) {
 			t.Helper()
 			if got := fn(err); got != want {
-				t.Errorf("got %v; want %v", got, want)
+				t.Errorf("got %t; want %t", got, want)
 			}
 		})
 	}
@@ -88,10 +84,6 @@ func TestIsTimeout(t *testing.T) {
 	test("errorsx.IsTimeout", errorsx.IsTimeout, errTimeout, true)
 	test("errorsx.IsTimeout (wrapped)", errorsx.IsTimeout, wrap(errTimeout), true)
 }
-
-type errCloser struct{ err error }
-
-func (c *errCloser) Close() error { return c.err }
 
 func TestClose(t *testing.T) {
 	test := func(name string, mainErr, closeErr error, wantErrs []error) {
@@ -116,3 +108,28 @@ func TestClose(t *testing.T) {
 	test("main: error; close: ok", errFoo, nil, []error{errFoo})
 	test("main: error; close: error", errFoo, errBar, []error{errFoo, errBar})
 }
+
+var (
+	errFoo     fooError
+	errBar     barError
+	errTimeout timeoutError
+)
+
+type fooError struct{}
+
+func (fooError) Error() string { return "foo" }
+
+type barError struct{}
+
+func (barError) Error() string { return "bar" }
+
+type timeoutError struct{}
+
+func (timeoutError) Error() string { return "timeout" }
+func (timeoutError) Timeout() bool { return true }
+
+func wrap(err error) error { return fmt.Errorf("wrapped: %w", err) }
+
+type errCloser struct{ err error }
+
+func (c *errCloser) Close() error { return c.err }

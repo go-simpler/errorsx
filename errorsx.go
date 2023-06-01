@@ -34,6 +34,13 @@ func AsAny(err error, target any, targets ...any) bool {
 	return false
 }
 
+// HasType reports whether the error has type T.
+// It is equivalent to [errors.As] without the need to declare the target variable.
+func HasType[T any](err error) bool {
+	var t T
+	return errors.As(err, &t)
+}
+
 // IsTimeout reports whether the error was caused by timeout.
 // Unlike [os.IsTimeout], it respects error wrapping.
 func IsTimeout(err error) bool {
