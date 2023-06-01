@@ -43,6 +43,17 @@ if errorsx.AsAny(err, new(*os.PathError), new(*os.LinkError)) {
 }
 ```
 
+### HasType
+
+Reports whether the error has type `T`.
+It is equivalent to `errors.As` without the need to declare the target variable.
+
+```go
+if errorsx.HasType[*os.PathError](err) {
+	// handle error
+}
+```
+
 ### IsTimeout
 
 Reports whether the error was caused by timeout.

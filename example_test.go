@@ -25,6 +25,12 @@ func ExampleAsAny() {
 	}
 }
 
+func ExampleHasType() {
+	if errorsx.HasType[*os.PathError](err) {
+		// handle error
+	}
+}
+
 func ExampleIsTimeout() {
 	if errorsx.IsTimeout(err) {
 		// handle timeout
