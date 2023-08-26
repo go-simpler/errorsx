@@ -12,8 +12,6 @@ on:
 jobs:
   test:
     uses: go-simpler/.github/.github/workflows/test.yml@main
-    with:
-      go-versions: '[ "stable" ]' # do not test against `oldstable` (1.19) yet, as it is missing `errors.Join`.
   lint:
     uses: go-simpler/.github/.github/workflows/lint.yml@main
   vuln:
