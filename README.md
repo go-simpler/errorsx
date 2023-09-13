@@ -13,7 +13,7 @@ Extensions for the standard `errors` package
 go get go-simpler.org/errorsx
 ```
 
-## 🧩 Extensions
+## 📋 Usage
 
 ### Sentinel
 
@@ -29,7 +29,7 @@ A multi-target version of `errors.Is`.
 
 ```go
 if errorsx.IsAny(err, os.ErrNotExist, os.ErrPermission) {
-	// handle error
+    // handle error
 }
 ```
 
@@ -39,7 +39,7 @@ A multi-target version of `errors.As`.
 
 ```go
 if errorsx.AsAny(err, new(*os.PathError), new(*os.LinkError)) {
-	// handle error
+    // handle error
 }
 ```
 
@@ -50,7 +50,7 @@ It is equivalent to `errors.As` without the need to declare the target variable.
 
 ```go
 if errorsx.HasType[*os.PathError](err) {
-	// handle error
+    // handle error
 }
 ```
 
@@ -61,7 +61,7 @@ Unlike `os.IsTimeout`, it respects error wrapping.
 
 ```go
 if errorsx.IsTimeout(err) {
-	// handle timeout
+    // handle timeout
 }
 ```
 
@@ -72,7 +72,7 @@ Attempts to close the given `io.Closer` and assigns the returned error (if any) 
 ```go
 f, err := os.Open("file.txt")
 if err != nil {
-	return err
+    return err
 }
 defer errorsx.Close(f, &err)
 ```
