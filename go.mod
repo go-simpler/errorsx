@@ -1,3 +1,3 @@
 module go-simpler.org/errorsx
 
-go 1.20
+go 1.21
