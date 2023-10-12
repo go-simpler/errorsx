@@ -26,6 +26,16 @@ func HasType[T any](err error) bool {
 	return errors.As(err, &t)
 }
 
+// Split returns errors joined by [errors.Join] or by [fmt.Errorf] with multiple %w verbs.
+// If the given error was created differently, Split returns nil.
+func Split(err error) []error {
+	u, ok := err.(interface{ Unwrap() []error })
+	if !ok {
+		return nil
+	}
+	return u.Unwrap()
+}
+
 // IsTimeout reports whether the error was caused by timeout.
 // Unlike [os.IsTimeout], it respects error wrapping.
 func IsTimeout(err error) bool {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"slices"
 	"testing"
 
 	"go-simpler.org/errorsx"
@@ -23,7 +24,7 @@ func TestIsAny(t *testing.T) {
 	test("no matches", errFoo, []error{errBar}, false)
 	test("single target match", errFoo, []error{errFoo}, true)
 	test("single target match (wrapped)", wrap(errFoo), []error{errFoo}, true)
-	test("multiple targets match (wrapped)", wrap(errFoo), []error{errFoo, errBar}, true)
+	test("multiple targets match (wrapped)", wrap(errFoo), []error{errBar, errFoo}, true)
 }
 
 func TestHasType(t *testing.T) {
@@ -41,6 +42,23 @@ func TestHasType(t *testing.T) {
 	test("match (exact)", errorsx.HasType[fooError], errFoo, true)
 	test("match (wrapped)", errorsx.HasType[fooError], wrap(errFoo), true)
 	test("match (interface)", errorsx.HasType[interface{ Timeout() bool }], errTimeout, true)
+}
+
+func TestSplit(t *testing.T) {
+	test := func(name string, err error, wantErrs []error) {
+		t.Helper()
+		t.Run(name, func(t *testing.T) {
+			t.Helper()
+			if gotErrs := errorsx.Split(err); !slices.Equal(gotErrs, wantErrs) {
+				t.Errorf("got %v; want %v", gotErrs, wantErrs)
+			}
+		})
+	}
+
+	test("nil error", nil, nil)
+	test("single error", errFoo, nil)
+	test("joined errors (errors.Join)", errors.Join(errFoo, errBar), []error{errFoo, errBar})
+	test("joined errors (fmt.Errorf)", fmt.Errorf("%w; %w", errFoo, errBar), []error{errFoo, errBar})
 }
 
 func TestIsTimeout(t *testing.T) {
