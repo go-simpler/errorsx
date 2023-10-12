@@ -20,6 +20,12 @@ func ExampleHasType() {
 	}
 }
 
+func ExampleSplit() {
+	if errs := errorsx.Split(err); errs != nil {
+		// handle errors
+	}
+}
+
 func ExampleIsTimeout() {
 	if errorsx.IsTimeout(err) {
 		// handle timeout

@@ -36,6 +36,17 @@ if errorsx.HasType[*os.PathError](err) {
 }
 ```
 
+### Split
+
+Returns errors joined by `errors.Join` or by `fmt.Errorf` with multiple `%w` verbs.
+If the given error was created differently, `Split` returns nil.
+
+```go
+if errs := errorsx.Split(err); errs != nil {
+    // handle errors
+}
+```
+
 ### IsTimeout
 
 Reports whether the error was caused by timeout.
