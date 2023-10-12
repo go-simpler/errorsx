@@ -24,7 +24,7 @@ func TestIsAny(t *testing.T) {
 	test("no matches", errFoo, []error{errBar}, false)
 	test("single target match", errFoo, []error{errFoo}, true)
 	test("single target match (wrapped)", wrap(errFoo), []error{errFoo}, true)
-	test("multiple targets match (wrapped)", wrap(errFoo), []error{errFoo, errBar}, true)
+	test("multiple targets match (wrapped)", wrap(errFoo), []error{errBar, errFoo}, true)
 }
 
 func TestHasType(t *testing.T) {
