@@ -8,19 +8,8 @@ import (
 
 var err error
 
-//nolint:unused // unused EOF is ok
-func ExampleSentinel() {
-	const EOF = errorsx.Sentinel("EOF")
-}
-
 func ExampleIsAny() {
 	if errorsx.IsAny(err, os.ErrNotExist, os.ErrPermission) {
-		// handle error
-	}
-}
-
-func ExampleAsAny() {
-	if errorsx.AsAny(err, new(*os.PathError), new(*os.LinkError)) {
 		// handle error
 	}
 }

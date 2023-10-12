@@ -15,30 +15,12 @@ go get go-simpler.org/errorsx
 
 ## 📋 Usage
 
-### Sentinel
-
-A truly immutable error: unlike errors created via `errors.New`, it can be declared as a constant.
-
-```go
-const EOF = errorsx.Sentinel("EOF")
-```
-
 ### IsAny
 
 A multi-target version of `errors.Is`.
 
 ```go
 if errorsx.IsAny(err, os.ErrNotExist, os.ErrPermission) {
-    // handle error
-}
-```
-
-### AsAny
-
-A multi-target version of `errors.As`.
-
-```go
-if errorsx.AsAny(err, new(*os.PathError), new(*os.LinkError)) {
     // handle error
 }
 ```

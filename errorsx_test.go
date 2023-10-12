@@ -9,14 +9,6 @@ import (
 	"go-simpler.org/errorsx"
 )
 
-func TestSentinel_Error(t *testing.T) {
-	const want = "EOF"
-
-	if got := errorsx.Sentinel("EOF").Error(); got != want {
-		t.Errorf("got %q; want %q", got, want)
-	}
-}
-
 func TestIsAny(t *testing.T) {
 	test := func(name string, err error, targets []error, want bool) {
 		t.Helper()
@@ -32,23 +24,6 @@ func TestIsAny(t *testing.T) {
 	test("single target match", errFoo, []error{errFoo}, true)
 	test("single target match (wrapped)", wrap(errFoo), []error{errFoo}, true)
 	test("multiple targets match (wrapped)", wrap(errFoo), []error{errFoo, errBar}, true)
-}
-
-func TestAsAny(t *testing.T) {
-	test := func(name string, err error, targets []any, want bool) {
-		t.Helper()
-		t.Run(name, func(t *testing.T) {
-			t.Helper()
-			if got := errorsx.AsAny(err, targets[0], targets[1:]...); got != want {
-				t.Errorf("got %t; want %t", got, want)
-			}
-		})
-	}
-
-	test("no matches", errFoo, []any{new(barError)}, false)
-	test("single target match", errFoo, []any{new(fooError)}, true)
-	test("single target match (wrapped)", wrap(errFoo), []any{new(fooError)}, true)
-	test("multiple targets match (wrapped)", wrap(errFoo), []any{new(fooError), new(barError)}, true)
 }
 
 func TestHasType(t *testing.T) {
