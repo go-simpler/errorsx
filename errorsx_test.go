@@ -3,7 +3,6 @@ package errorsx_test
 import (
 	"errors"
 	"fmt"
-	"os"
 	"slices"
 	"testing"
 
@@ -41,7 +40,7 @@ func TestHasType(t *testing.T) {
 	test("no match", errorsx.HasType[barError], errFoo, false)
 	test("match (exact)", errorsx.HasType[fooError], errFoo, true)
 	test("match (wrapped)", errorsx.HasType[fooError], wrap(errFoo), true)
-	test("match (interface)", errorsx.HasType[interface{ Timeout() bool }], errTimeout, true)
+	test("match (interface)", errorsx.HasType[interface{ Error() string }], errFoo, true)
 }
 
 func TestSplit(t *testing.T) {
@@ -59,23 +58,6 @@ func TestSplit(t *testing.T) {
 	test("single error", errFoo, nil)
 	test("joined errors (errors.Join)", errors.Join(errFoo, errBar), []error{errFoo, errBar})
 	test("joined errors (fmt.Errorf)", fmt.Errorf("%w; %w", errFoo, errBar), []error{errFoo, errBar})
-}
-
-func TestIsTimeout(t *testing.T) {
-	test := func(name string, fn func(error) bool, err error, want bool) {
-		t.Helper()
-		t.Run(name, func(t *testing.T) {
-			t.Helper()
-			if got := fn(err); got != want {
-				t.Errorf("got %t; want %t", got, want)
-			}
-		})
-	}
-
-	test("os.IsTimeout", os.IsTimeout, errTimeout, true)
-	test("os.IsTimeout (wrapped)", os.IsTimeout, wrap(errTimeout), false)
-	test("errorsx.IsTimeout", errorsx.IsTimeout, errTimeout, true)
-	test("errorsx.IsTimeout (wrapped)", errorsx.IsTimeout, wrap(errTimeout), true)
 }
 
 func TestClose(t *testing.T) {
@@ -103,9 +85,8 @@ func TestClose(t *testing.T) {
 }
 
 var (
-	errFoo     fooError
-	errBar     barError
-	errTimeout timeoutError
+	errFoo fooError
+	errBar barError
 )
 
 type fooError struct{}
@@ -116,12 +97,7 @@ type barError struct{}
 
 func (barError) Error() string { return "bar" }
 
-type timeoutError struct{}
-
-func (timeoutError) Error() string { return "timeout" }
-func (timeoutError) Timeout() bool { return true }
-
-func wrap(err error) error { return fmt.Errorf("wrapped: %w", err) }
+func wrap(err error) error { return fmt.Errorf("%w", err) }
 
 type errCloser struct{ err error }
 

@@ -5,7 +5,7 @@
 [![goreportcard](https://goreportcard.com/badge/go-simpler.org/errorsx)](https://goreportcard.com/report/go-simpler.org/errorsx)
 [![codecov](https://codecov.io/gh/go-simpler/errorsx/branch/main/graph/badge.svg)](https://codecov.io/gh/go-simpler/errorsx)
 
-Extensions for the standard `errors` package
+Extensions for the standard `errors` package.
 
 ## 📦 Install
 
@@ -21,7 +21,7 @@ A multi-target version of `errors.Is`.
 
 ```go
 if errorsx.IsAny(err, os.ErrNotExist, os.ErrPermission) {
-    // handle error
+    fmt.Println(err)
 }
 ```
 
@@ -32,7 +32,7 @@ It is equivalent to `errors.As` without the need to declare the target variable.
 
 ```go
 if errorsx.HasType[*os.PathError](err) {
-    // handle error
+    fmt.Println(err)
 }
 ```
 
@@ -43,18 +43,7 @@ If the given error was created differently, `Split` returns nil.
 
 ```go
 if errs := errorsx.Split(err); errs != nil {
-    // handle errors
-}
-```
-
-### IsTimeout
-
-Reports whether the error was caused by timeout.
-Unlike `os.IsTimeout`, it respects error wrapping.
-
-```go
-if errorsx.IsTimeout(err) {
-    // handle timeout
+    fmt.Println(errs)
 }
 ```
 
@@ -63,9 +52,13 @@ if errorsx.IsTimeout(err) {
 Attempts to close the given `io.Closer` and assigns the returned error (if any) to `err`.
 
 ```go
-f, err := os.Open("file.txt")
-if err != nil {
-    return err
-}
-defer errorsx.Close(f, &err)
+func() (err error) {
+    f, err := os.Open("file.txt")
+    if err != nil {
+        return err
+    }
+    defer errorsx.Close(f, &err)
+
+    return nil
+}()
 ```
