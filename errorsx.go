@@ -1,4 +1,4 @@
-// Package errorsx provides extensions for the standard [errors] package.
+// Package errorsx implements extensions for the standard [errors] package.
 package errorsx
 
 import (
@@ -36,20 +36,9 @@ func Split(err error) []error {
 	return u.Unwrap()
 }
 
-// IsTimeout reports whether the error was caused by timeout.
-// Unlike [os.IsTimeout], it respects error wrapping.
-func IsTimeout(err error) bool {
-	var t interface {
-		Timeout() bool
-	}
-	return errors.As(err, &t) && t.Timeout()
-}
-
 // Close attempts to close the given [io.Closer] and assigns the returned error (if any) to err.
 // If err is already not nil, it will be joined with the [io.Closer]'s error.
-//
-// NOTE: Close is designed to be used ONLY as a defer statement.
-func Close(c io.Closer, err *error) { //nolint:gocritic // ptrToRefParam: false-positive
+func Close(c io.Closer, err *error) { //nolint:gocritic // ptrToRefParam: err must be a pointer here.
 	if cerr := c.Close(); cerr != nil {
 		*err = errors.Join(*err, cerr)
 	}

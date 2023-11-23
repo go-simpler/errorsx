@@ -1,6 +1,7 @@
 package errorsx_test
 
 import (
+	"fmt"
 	"os"
 
 	"go-simpler.org/errorsx"
@@ -10,30 +11,25 @@ var err error
 
 func ExampleIsAny() {
 	if errorsx.IsAny(err, os.ErrNotExist, os.ErrPermission) {
-		// handle error
+		fmt.Println(err)
 	}
 }
 
 func ExampleHasType() {
 	if errorsx.HasType[*os.PathError](err) {
-		// handle error
+		fmt.Println(err)
 	}
 }
 
 func ExampleSplit() {
 	if errs := errorsx.Split(err); errs != nil {
-		// handle errors
+		fmt.Println(errs)
 	}
 }
 
-func ExampleIsTimeout() {
-	if errorsx.IsTimeout(err) {
-		// handle timeout
-	}
-}
-
+//nolint:errcheck // this is just an example.
 func ExampleClose() {
-	_ = func() (err error) {
+	func() (err error) {
 		f, err := os.Open("file.txt")
 		if err != nil {
 			return err
