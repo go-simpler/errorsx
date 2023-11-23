@@ -10,78 +10,93 @@ import (
 )
 
 func TestIsAny(t *testing.T) {
-	test := func(name string, err error, targets []error, want bool) {
-		t.Helper()
+	tests := map[string]struct {
+		err     error
+		targets []error
+		want    bool
+	}{
+		"no matches":                       {err: errFoo, targets: []error{errBar}, want: false},
+		"single target match":              {err: errFoo, targets: []error{errFoo}, want: true},
+		"single target match (wrapped)":    {err: wrap(errFoo), targets: []error{errFoo}, want: true},
+		"multiple targets match (wrapped)": {err: wrap(errFoo), targets: []error{errBar, errFoo}, want: true},
+	}
+
+	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			t.Helper()
-			if got := errorsx.IsAny(err, targets[0], targets[1:]...); got != want {
-				t.Errorf("got %t; want %t", got, want)
+			if got := errorsx.IsAny(test.err, test.targets[0], test.targets[1:]...); got != test.want {
+				t.Errorf("got %t; want %t", got, test.want)
 			}
 		})
 	}
-
-	test("no matches", errFoo, []error{errBar}, false)
-	test("single target match", errFoo, []error{errFoo}, true)
-	test("single target match (wrapped)", wrap(errFoo), []error{errFoo}, true)
-	test("multiple targets match (wrapped)", wrap(errFoo), []error{errBar, errFoo}, true)
 }
 
 func TestHasType(t *testing.T) {
-	test := func(name string, fn func(error) bool, err error, want bool) {
-		t.Helper()
+	tests := map[string]struct {
+		fn   func(error) bool
+		err  error
+		want bool
+	}{
+		"no match":          {fn: errorsx.HasType[barError], err: errFoo, want: false},
+		"match (exact)":     {fn: errorsx.HasType[fooError], err: errFoo, want: true},
+		"match (wrapped)":   {fn: errorsx.HasType[fooError], err: wrap(errFoo), want: true},
+		"match (interface)": {fn: errorsx.HasType[interface{ Error() string }], err: errFoo, want: true},
+	}
+
+	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			t.Helper()
-			if got := fn(err); got != want {
-				t.Errorf("got %t; want %t", got, want)
+			if got := test.fn(test.err); got != test.want {
+				t.Errorf("got %t; want %t", got, test.want)
 			}
 		})
 	}
-
-	test("no match", errorsx.HasType[barError], errFoo, false)
-	test("match (exact)", errorsx.HasType[fooError], errFoo, true)
-	test("match (wrapped)", errorsx.HasType[fooError], wrap(errFoo), true)
-	test("match (interface)", errorsx.HasType[interface{ Error() string }], errFoo, true)
 }
 
 func TestSplit(t *testing.T) {
-	test := func(name string, err error, wantErrs []error) {
-		t.Helper()
+	tests := map[string]struct {
+		err      error
+		wantErrs []error
+	}{
+		"nil error":                   {err: nil, wantErrs: nil},
+		"single error":                {err: errFoo, wantErrs: nil},
+		"joined errors (errors.Join)": {err: errors.Join(errFoo, errBar), wantErrs: []error{errFoo, errBar}},
+		"joined errors (fmt.Errorf)":  {err: fmt.Errorf("%w; %w", errFoo, errBar), wantErrs: []error{errFoo, errBar}},
+	}
+
+	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			t.Helper()
-			if gotErrs := errorsx.Split(err); !slices.Equal(gotErrs, wantErrs) {
-				t.Errorf("got %v; want %v", gotErrs, wantErrs)
+			if gotErrs := errorsx.Split(test.err); !slices.Equal(gotErrs, test.wantErrs) {
+				t.Errorf("got %v; want %v", gotErrs, test.wantErrs)
 			}
 		})
 	}
-
-	test("nil error", nil, nil)
-	test("single error", errFoo, nil)
-	test("joined errors (errors.Join)", errors.Join(errFoo, errBar), []error{errFoo, errBar})
-	test("joined errors (fmt.Errorf)", fmt.Errorf("%w; %w", errFoo, errBar), []error{errFoo, errBar})
 }
 
 func TestClose(t *testing.T) {
-	test := func(name string, mainErr, closeErr error, wantErrs []error) {
-		t.Helper()
+	tests := map[string]struct {
+		mainErr  error
+		closeErr error
+		wantErrs []error
+	}{
+		"main: ok; close: ok":       {mainErr: nil, closeErr: nil, wantErrs: []error{}},
+		"main: ok; close: error":    {mainErr: nil, closeErr: errBar, wantErrs: []error{errBar}},
+		"main: error; close: ok":    {mainErr: errFoo, closeErr: nil, wantErrs: []error{errFoo}},
+		"main: error; close: error": {mainErr: errFoo, closeErr: errBar, wantErrs: []error{errFoo, errBar}},
+	}
+
+	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			t.Helper()
 			gotErr := func() (err error) {
-				c := errCloser{err: closeErr}
+				c := errCloser{err: test.closeErr}
 				defer errorsx.Close(&c, &err)
-				return mainErr
+				return test.mainErr
 			}()
-			for _, wantErr := range wantErrs {
+			for _, wantErr := range test.wantErrs {
 				if !errors.Is(gotErr, wantErr) {
-					t.Errorf("got %v; want %v", gotErr, wantErrs)
+					t.Errorf("got %v; want %v", gotErr, wantErr)
 				}
 			}
 		})
 	}
-
-	test("main: ok; close: ok", nil, nil, []error{})
-	test("main: ok; close: error", nil, errBar, []error{errBar})
-	test("main: error; close: ok", errFoo, nil, []error{errFoo})
-	test("main: error; close: error", errFoo, errBar, []error{errFoo, errBar})
 }
 
 var (
