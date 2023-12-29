@@ -9,6 +9,8 @@ Extensions for the standard `errors` package.
 
 ## 📦 Install
 
+Go 1.21+
+
 ```shell
 go get go-simpler.org/errorsx
 ```
