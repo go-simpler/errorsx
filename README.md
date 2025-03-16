@@ -22,30 +22,31 @@ go get go-simpler.org/errorsx
 A multi-target version of `errors.Is`.
 
 ```go
+// Before:
+if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) {
+    fmt.Println(err)
+}
+
+// After:
 if errorsx.IsAny(err, os.ErrNotExist, os.ErrPermission) {
     fmt.Println(err)
 }
 ```
 
-### HasType
+### As
 
-Reports whether the error has type `T`.
-It is equivalent to `errors.As` without the need to declare the target variable.
+A generic version of `errors.As`.
 
 ```go
-if errorsx.HasType[*os.PathError](err) {
-    fmt.Println(err)
+// Before:
+var pathErr *os.PathError
+if errors.As(err, &pathErr) {
+    fmt.Println(pathErr.Path)
 }
-```
 
-### Split
-
-Returns errors joined by `errors.Join` or by `fmt.Errorf` with multiple `%w` verbs.
-If the given error was created differently, `Split` returns nil.
-
-```go
-if errs := errorsx.Split(err); errs != nil {
-    fmt.Println(errs)
+// After:
+if pathErr, ok := errorsx.As[*os.PathError](err); ok {
+    fmt.Println(pathErr.Path)
 }
 ```
 
@@ -54,13 +55,16 @@ if errs := errorsx.Split(err); errs != nil {
 Attempts to close the given `io.Closer` and assigns the returned error (if any) to `err`.
 
 ```go
-func() (err error) {
-    f, err := os.Open("file.txt")
-    if err != nil {
-        return err
-    }
-    defer errorsx.Close(f, &err)
+f, err := os.Open("file.txt")
+if err != nil {
+    return err
+}
 
-    return nil
+// Before:
+defer func() {
+    err = errors.Join(err, f.Close())
 }()
+
+// After:
+defer errorsx.Close(f, &err)
 ```

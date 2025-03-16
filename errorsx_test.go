@@ -3,7 +3,6 @@ package errorsx_test
 import (
 	"errors"
 	"fmt"
-	"slices"
 	"testing"
 
 	"go-simpler.org/errorsx"
@@ -30,42 +29,23 @@ func TestIsAny(t *testing.T) {
 	}
 }
 
-func TestHasType(t *testing.T) {
+func TestAs(t *testing.T) {
+	isok := func(_ any, ok bool) bool { return ok }
+
 	tests := map[string]struct {
 		fn   func(error) bool
 		err  error
 		want bool
 	}{
-		"no match":          {fn: errorsx.HasType[barError], err: errFoo, want: false},
-		"match (exact)":     {fn: errorsx.HasType[fooError], err: errFoo, want: true},
-		"match (wrapped)":   {fn: errorsx.HasType[fooError], err: wrap(errFoo), want: true},
-		"match (interface)": {fn: errorsx.HasType[interface{ Error() string }], err: errFoo, want: true},
+		"no match":        {fn: func(err error) bool { return isok(errorsx.As[barError](err)) }, err: errFoo, want: false},
+		"match (exact)":   {fn: func(err error) bool { return isok(errorsx.As[fooError](err)) }, err: errFoo, want: true},
+		"match (wrapped)": {fn: func(err error) bool { return isok(errorsx.As[fooError](err)) }, err: wrap(errFoo), want: true},
 	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			if got := test.fn(test.err); got != test.want {
 				t.Errorf("got %t; want %t", got, test.want)
-			}
-		})
-	}
-}
-
-func TestSplit(t *testing.T) {
-	tests := map[string]struct {
-		err      error
-		wantErrs []error
-	}{
-		"nil error":                   {err: nil, wantErrs: nil},
-		"single error":                {err: errFoo, wantErrs: nil},
-		"joined errors (errors.Join)": {err: errors.Join(errFoo, errBar), wantErrs: []error{errFoo, errBar}},
-		"joined errors (fmt.Errorf)":  {err: fmt.Errorf("%w; %w", errFoo, errBar), wantErrs: []error{errFoo, errBar}},
-	}
-
-	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
-			if gotErrs := errorsx.Split(test.err); !slices.Equal(gotErrs, test.wantErrs) {
-				t.Errorf("got %v; want %v", gotErrs, test.wantErrs)
 			}
 		})
 	}
@@ -112,8 +92,8 @@ type barError struct{}
 
 func (barError) Error() string { return "bar" }
 
-func wrap(err error) error { return fmt.Errorf("%w", err) }
-
 type errCloser struct{ err error }
 
 func (c *errCloser) Close() error { return c.err }
+
+func wrap(err error) error { return fmt.Errorf("%w", err) }
