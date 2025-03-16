@@ -15,21 +15,14 @@ func ExampleIsAny() {
 	}
 }
 
-func ExampleHasType() {
-	if errorsx.HasType[*os.PathError](err) {
-		fmt.Println(err)
+func ExampleAs() {
+	if pathErr, ok := errorsx.As[*os.PathError](err); ok {
+		fmt.Println(pathErr.Path)
 	}
 }
 
-func ExampleSplit() {
-	if errs := errorsx.Split(err); errs != nil {
-		fmt.Println(errs)
-	}
-}
-
-//nolint:errcheck // this is just an example.
 func ExampleClose() {
-	func() (err error) {
+	_ = func() (err error) {
 		f, err := os.Open("file.txt")
 		if err != nil {
 			return err
@@ -37,5 +30,5 @@ func ExampleClose() {
 		defer errorsx.Close(f, &err)
 
 		return nil
-	}()
+	}
 }
