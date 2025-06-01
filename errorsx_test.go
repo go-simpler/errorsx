@@ -14,7 +14,7 @@ func TestIsAny(t *testing.T) {
 		targets []error
 		want    bool
 	}{
-		"no matches":                       {err: errFoo, targets: []error{errBar}, want: false},
+		"no match":                         {err: errFoo, targets: []error{errBar}, want: false},
 		"single target match":              {err: errFoo, targets: []error{errFoo}, want: true},
 		"single target match (wrapped)":    {err: wrap(errFoo), targets: []error{errFoo}, want: true},
 		"multiple targets match (wrapped)": {err: wrap(errFoo), targets: []error{errBar, errFoo}, want: true},
@@ -33,41 +33,41 @@ func TestAs(t *testing.T) {
 	isok := func(_ any, ok bool) bool { return ok }
 
 	tests := map[string]struct {
-		fn   func(error) bool
 		err  error
+		as   func(error) bool
 		want bool
 	}{
-		"no match":        {fn: func(err error) bool { return isok(errorsx.As[barError](err)) }, err: errFoo, want: false},
-		"match (exact)":   {fn: func(err error) bool { return isok(errorsx.As[fooError](err)) }, err: errFoo, want: true},
-		"match (wrapped)": {fn: func(err error) bool { return isok(errorsx.As[fooError](err)) }, err: wrap(errFoo), want: true},
+		"no match":        {err: errFoo, as: func(err error) bool { return isok(errorsx.As[barError](err)) }, want: false},
+		"match (exact)":   {err: errFoo, as: func(err error) bool { return isok(errorsx.As[fooError](err)) }, want: true},
+		"match (wrapped)": {err: wrap(errFoo), as: func(err error) bool { return isok(errorsx.As[fooError](err)) }, want: true},
 	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			if got := test.fn(test.err); got != test.want {
+			if got := test.as(test.err); got != test.want {
 				t.Errorf("got %t; want %t", got, test.want)
 			}
 		})
 	}
 }
 
-func TestClose(t *testing.T) {
+func TestDo(t *testing.T) {
 	tests := map[string]struct {
 		mainErr  error
-		closeErr error
+		deferErr error
 		wantErrs []error
 	}{
-		"main: ok; close: ok":       {mainErr: nil, closeErr: nil, wantErrs: []error{}},
-		"main: ok; close: error":    {mainErr: nil, closeErr: errBar, wantErrs: []error{errBar}},
-		"main: error; close: ok":    {mainErr: errFoo, closeErr: nil, wantErrs: []error{errFoo}},
-		"main: error; close: error": {mainErr: errFoo, closeErr: errBar, wantErrs: []error{errFoo, errBar}},
+		"main: ok; defer: ok":       {mainErr: nil, deferErr: nil, wantErrs: []error{}},
+		"main: ok; defer: error":    {mainErr: nil, deferErr: errBar, wantErrs: []error{errBar}},
+		"main: error; defer: ok":    {mainErr: errFoo, deferErr: nil, wantErrs: []error{errFoo}},
+		"main: error; defer: error": {mainErr: errFoo, deferErr: errBar, wantErrs: []error{errFoo, errBar}},
 	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			gotErr := func() (err error) {
-				c := errCloser{err: test.closeErr}
-				defer errorsx.Close(&c, &err)
+				fn := func() error { return test.deferErr }
+				defer errorsx.Do(fn, &err)
 				return test.mainErr
 			}()
 			for _, wantErr := range test.wantErrs {
@@ -91,9 +91,5 @@ func (fooError) Error() string { return "foo" }
 type barError struct{}
 
 func (barError) Error() string { return "bar" }
-
-type errCloser struct{ err error }
-
-func (c *errCloser) Close() error { return c.err }
 
 func wrap(err error) error { return fmt.Errorf("%w", err) }

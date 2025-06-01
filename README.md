@@ -50,9 +50,9 @@ if pathErr, ok := errorsx.As[*os.PathError](err); ok {
 }
 ```
 
-### Close
+### Do
 
-Attempts to close the given `io.Closer` and assigns the returned error (if any) to `err`.
+Calls the given function and joins the returned error (if any) with `err`.
 
 ```go
 f, err := os.Open("file.txt")
@@ -66,5 +66,5 @@ defer func() {
 }()
 
 // After:
-defer errorsx.Close(f, &err)
+defer errorsx.Do(f.Close, &err)
 ```

@@ -21,13 +21,13 @@ func ExampleAs() {
 	}
 }
 
-func ExampleClose() {
+func ExampleDo() {
 	_ = func() (err error) {
 		f, err := os.Open("file.txt")
 		if err != nil {
 			return err
 		}
-		defer errorsx.Close(f, &err)
+		defer errorsx.Do(f.Close, &err)
 
 		return nil
 	}
