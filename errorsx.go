@@ -1,10 +1,7 @@
 // Package errorsx implements extensions for the standard [errors] package.
 package errorsx
 
-import (
-	"errors"
-	"io"
-)
+import "errors"
 
 // IsAny is a multi-target version of [errors.Is].
 func IsAny(err, target error, targets ...error) bool {
@@ -26,8 +23,9 @@ func As[T any](err error) (T, bool) {
 	return t, ok
 }
 
-// Close attempts to close the given [io.Closer] and assigns the returned error (if any) to err.
-// If err is already not nil, it will be joined with the [io.Closer]'s error.
-func Close(c io.Closer, err *error) { //nolint:gocritic // ptrToRefParam: err must be a pointer here.
-	*err = errors.Join(*err, c.Close())
+// Do calls the given function and joins the returned error (if any) with err.
+// Do is meant to be used in defer statements to record errors returned by [os.File.Close], [sql.Tx.Rollback], etc.
+// Note that the returned error in the function where Do is deferred must be named.
+func Do(fn func() error, err *error) { //nolint:gocritic // ptrToRefParam: err must be a pointer here.
+	*err = errors.Join(*err, fn())
 }
